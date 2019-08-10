@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!--扫描具有spring注解的类加载进spring容器-->
+    <context:component-scan base-package="com.cxf.easyexcel.controller"/>
+    <context:component-scan base-package="com.cxf.easyexcel.config"/>
+
+    <!-- 加载配置文件 -->
+    <context:property-placeholder location="classpath:application.properties" file-encoding="UTF-8"/>
+
+    <!--json转化器，它可以将结果转化-->
+    <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
+                <value>application/json;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 2、接收中文参数乱码：在tomcat server目录下的server.xml配置 中  Connector connectionTimeout="20000" port="8090" protocol="HTTP/1.1" redirectPort="8443" 增加这个：URIEncoding="utf-8" -->
+
+    <!-- 3、上传文件需要有此配置，不然会报强转错误：  java.lang.ClassCastException: org.apache.catalina.connector.RequestFacade cannot be cast to org.springframework.web.multipart.MultipartHttpServletRequest -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 大小单位：bytes -->
+        <property name="maxUploadSize">
+            <value>104857600</value>
+        </property>
+        <property name="maxInMemorySize">
+            <value>10240</value>
+        </property>
+        <property name="defaultEncoding">
+            <value>UTF-8</value>
+        </property>
+    </bean>
+
+    <!--<mvc:default-servlet-handler/>-->
+
+    <!--配置静态资源映射-->
+    <mvc:resources mapping="/statics/**" location="/statics/"/>
+
+    <!--swagger配置静态资源文件映射-->
+    <mvc:resources location="classpath:/META-INF/resources/" mapping="swagger-ui.html"/>
+    <mvc:resources location="classpath:/META-INF/resources/webjars/" mapping="/webjars/**"/>
+
+    <!--加载注解驱动-->
+    <mvc:annotation-driven/>
+
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+</beans>
